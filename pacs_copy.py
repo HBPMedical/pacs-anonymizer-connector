@@ -76,22 +76,20 @@ def OnReceiveStore(SOPClass, ds):
 MyAE = AE(args.aet, args.port, [PatientRootFindSOPClass,
                              PatientRootMoveSOPClass,
                              VerificationSOPClass], [StorageSOPClass], ts)
-# AE class inherits from threading.Thread
-# making it a daemon, will make it stop when the main thread stops
-MyAE.daemon = True
 
 MyAE.OnAssociateResponse = OnAssociateResponse
 MyAE.OnAssociateRequest = OnAssociateRequest
 MyAE.OnReceiveStore = OnReceiveStore
 MyAE.start()
 
+# this is to force a quit on ctrl-c (sigint)
+# the extra thread created to receive dicoms is not killed automatically
 def signal_handler(signal, frame):
     print('You pressed Ctrl+C!')
     MyAE.Quit()
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-
 
 # remote application entity
 RemoteAE = dict(Address=args.remotehost, Port=args.remoteport, AET=args.aec)
@@ -132,7 +130,6 @@ else:
     processed = pd.DataFrame(columns=['processed_date'])
     processed.to_csv(args.csv)
 
-
 # will update the file by append the new lines 
 with open(args.csv, 'a') as csv_file:
     for i in items:
@@ -141,7 +138,7 @@ with open(args.csv, 'a') as csv_file:
         else:
             print "found new item, copying"
             print i
-            # will a new line in the csv file so that it remembers the next time
+            # writes a new line in the csv file so that it remembers the next time
             csv_file.write("%s,%s\n" % (i.SOPInstanceUID, datetime.now()))
             copy_dicom(i)
  
