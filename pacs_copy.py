@@ -4,17 +4,17 @@ from netdicom.SOPclass import *
 from dicom.dataset import Dataset, FileDataset
 from dicom.UID import ExplicitVRLittleEndian, ImplicitVRLittleEndian, \
     ExplicitVRBigEndian
-import netdicom
-# netdicom.debug(True)
 import tempfile
-#import signal
-#import sys
+import signal
+import sys
+import pandas as pd
+from os import path
+from datetime import datetime
 
 # parse commandline
 parser = argparse.ArgumentParser(description='storage SCU example')
 parser.add_argument('remotehost')
 parser.add_argument('remoteport', type=int)
-parser.add_argument('searchstring')
 parser.add_argument('-p', '--port', help='local server port', type=int, default=1234)
 parser.add_argument('-t','--aet', help='calling AET title', default='ACME1')
 parser.add_argument('-m','--aem', help='calling AEM title', default='ACME1')
@@ -23,6 +23,7 @@ parser.add_argument('-i','--implicit', action='store_true',
                     help='negociate implicit transfer syntax only',
                     default=False)
 parser.add_argument('-o','--output', help='output folder', default=tempfile.gettempdir())
+parser.add_argument('-C','--csv', help='csv file with already processed dicoms', default='dicoms_processed.csv')
 parser.add_argument('-e','--explicit', action='store_true',
                     help='negociate explicit transfer syntax only',
                     default=False)
@@ -51,8 +52,8 @@ def OnAssociateRequest(association):
     print "Association resquested"
     return True
 
-def OnReceiveStore(SOPClass, DS):
-    print "Received C-STORE", DS.PatientName
+def OnReceiveStore(SOPClass, ds):
+    print "Received SOPInstanceUID", ds.SOPInstanceUID
     # do something with dataset. For instance, store it.
     file_meta = Dataset()
     file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
@@ -60,15 +61,14 @@ def OnReceiveStore(SOPClass, DS):
     file_meta.MediaStorageSOPInstanceUID = "1.2.3"
     # !!! Need valid UIDs here
     file_meta.ImplementationClassUID = "1.2.3.4"
-    filename = '%s/%s.dcm' % (args.output, DS.SOPInstanceUID)
-    ds = FileDataset(filename, {},
+    filename = '%s/%s.dcm' % (args.output, ds.SOPInstanceUID)
+    fileds = FileDataset(filename, {},
                      file_meta=file_meta, preamble="\0" * 128)
-    ds.update(DS)
-    #ds.is_little_endian = True
-    #ds.is_implicit_VR = True
-    ds.save_as(filename)
+    fileds.update(ds)
+    #fileds.is_little_endian = True
+    #fileds.is_implicit_VR = True
+    fileds.save_as(filename)
     print "File %s written" % filename
-
     # must return appropriate status
     return SOPClass.Success
 
@@ -85,12 +85,12 @@ MyAE.OnAssociateRequest = OnAssociateRequest
 MyAE.OnReceiveStore = OnReceiveStore
 MyAE.start()
 
-#def signal_handler(signal, frame):
-#    print('You pressed Ctrl+C!')
-#    MyAE.Quit()
-#    sys.exit(0)
+def signal_handler(signal, frame):
+    print('You pressed Ctrl+C!')
+    MyAE.Quit()
+    sys.exit(0)
 
-#signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
 
 
 # remote application entity
@@ -121,16 +121,29 @@ assoc.Release(0)
 
 d = Dataset()
 d.QueryRetrieveLevel = "PATIENT"
-#d.PatientsName = "*"
-#d.PatientID = args.searchstring
-d.SeriesInstanceUID = args.searchstring
+d.SOPInstanceUID = '*'
 
 items = list_pacs(d)
 
-for i in items:
-    print i
-    copy_dicom(i)
- 
+# opens the csv file with the already processed items
+if path.isfile(args.csv):
+    processed = pd.read_csv(args.csv, index_col=0)
+else:
+    processed = pd.DataFrame(columns=['processed_date'])
+    processed.to_csv(args.csv)
 
+
+# will update the file by append the new lines 
+with open(args.csv, 'a') as csv_file:
+    for i in items:
+        if i.SOPInstanceUID in processed.index:
+            print "Already processed ", i.SOPInstanceUID
+        else:
+            print "found new item, copying"
+            print i
+            # will a new line in the csv file so that it remembers the next time
+            csv_file.write("%s,%s\n" % (i.SOPInstanceUID, datetime.now()))
+            copy_dicom(i)
+ 
 # done
 MyAE.Quit()
