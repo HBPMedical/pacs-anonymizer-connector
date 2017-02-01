@@ -8,7 +8,7 @@ class DicomAnonymizer:
         self.quarantine = os.path.abspath(quarantine)
         self.config = os.path.abspath(config)
     def anonymize(self, target):
-        #TODO: see if the hardcoded values like the class to load from the jar is ok
+        #TODO: see if the hardcoded values like the class to load from the jar are ok
         #java -Dlogback.configurationFile=./logback.xml -cp lib/pandora-clients-fedehr-anonymiser-cli-1.0.0.jar fr.maatg.fedehr.anonymiser.cli.DicomAnonymizerCli
         cmd = ['java', 
                 '-Dlogback.configurationFile=./logback.xml',
