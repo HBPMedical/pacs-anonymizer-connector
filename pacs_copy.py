@@ -46,13 +46,6 @@ pacs.connect(args.remotehost,
             args.remoteport, 
             args.aec)
 
-# this is to force a quit on ctrl-c (sigint)
-# the extra thread created to receive dicoms is not killed automatically (have to check on pynetdicom)
-def signal_handler(signal, frame):
-    print('You pressed Ctrl+C!')
-    pacs.quit()
-    sys.exit(0)
-
 processed = dict()
 if path.isfile(args.csv):
     # opens the csv file with the already processed items
