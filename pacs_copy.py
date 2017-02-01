@@ -18,12 +18,12 @@ parser.add_argument('-c','--aec', help='called AEC title', default='COMMON')
 parser.add_argument('-i','--implicit', action='store_true',
                     help='negociate implicit transfer syntax only',
                     default=False)
-parser.add_argument('-o','--output', help='output folder', default=tempfile.gettempdir())
-parser.add_argument('-l','--log', help='configuration log file', default='logging.ini')
-parser.add_argument('-C','--csv', help='csv file with the already processed dicoms', default='dicoms_processed.csv')
 parser.add_argument('-e','--explicit', action='store_true',
                     help='negociate explicit transfer syntax only',
                     default=False)
+parser.add_argument('-o','--output', help='output folder', default=tempfile.gettempdir())
+parser.add_argument('-l','--log', help='configuration log file', default='logging.ini')
+parser.add_argument('-C','--csv', help='csv file with the already processed dicoms', default='dicoms_processed.csv')
 
 args = parser.parse_args()
 
@@ -32,22 +32,22 @@ if path.isfile(args.log):
 else:
     logging.warning("could not find configuration log file '%s'" % args.log)
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 #starts our pacs instance
-pacs = Pacs( args.remotehost, 
-            args.remoteport, 
-            args.port,
-            args.aet, 
-            args.aem, 
-            args.aec, 
-            args.implicit, 
-            args.explicit, 
-            args.output)
+pacs = Pacs( args.port,
+            args.aet,
+            args.aem,
+            args.output,
+            args.implicit,
+            args.explicit)
 
+pacs.connect(args.remotehost, 
+            args.remoteport, 
+            args.aec)
 
 # this is to force a quit on ctrl-c (sigint)
-# the extra thread created to receive dicoms is not killed automatically
+# the extra thread created to receive dicoms is not killed automatically (have to check on pynetdicom)
 def signal_handler(signal, frame):
     print('You pressed Ctrl+C!')
     pacs.quit()

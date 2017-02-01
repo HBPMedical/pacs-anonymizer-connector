@@ -5,15 +5,12 @@ from dicom.UID import ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVR
 import logging
 
 class Pacs:
-    def __init__(self, remotehost, 
-                    remoteport, 
-                    port=1234,
+    def __init__(self,port=1234,
                     aet='ACME1',
                     aem='ACME1',
-                    aec='COMMON',
+                    output='out',
                     implicit=None,
-                    explicit=None,
-                    output='out' ):
+                    explicit=None):
         self.logger = logging.getLogger(__name__)
         if implicit:
             ts = [ImplicitVRLittleEndian]
@@ -25,23 +22,22 @@ class Pacs:
                 ImplicitVRLittleEndian,
                 ExplicitVRBigEndian
             ]
-        self.port=port
-        self.aet=aet
-        self.aem=aem
-        self.aec=aec
+        self.port = port
+        self.aet = aet
+        self.aem = aem
         self.output = output
+        self.RemoteAE = None
         self.MyAE = AE(aet, port, [StudyRootFindSOPClass,
                              StudyRootMoveSOPClass,
                              PatientRootFindSOPClass,
                              PatientRootMoveSOPClass,
                              VerificationSOPClass], [StorageSOPClass], ts)
-        self.logger.debug("creating application entity")
         self.MyAE.OnAssociateResponse = self.OnAssociateResponse
         self.MyAE.OnAssociateRequest = self.OnAssociateRequest
         self.MyAE.OnReceiveStore = self.OnReceiveStore
-        self.RemoteAE = dict(Address=remotehost,Port=remoteport,AET=aec)
       
-    def start(self):
+    def connect(self, remotehost, remoteport, aec):
+        self.RemoteAE = dict(Address=remotehost,Port=remoteport,AET=aec)
         self.logger.debug("starting local application entity")
         self.MyAE.start()
         # create association with remote AE
@@ -95,7 +91,7 @@ class Pacs:
         assoc = self.MyAE.RequestAssociation(self.RemoteAE)
         gen = assoc.StudyRootMoveSOPClass.SCU(dataset, self.aem, 1)
         for gg in gen:
-            # we have to access the item to copy it (it will be done asynchornously)
+            # we have to access the item to copy it (it will be done asynchronously)
             self.logger.debug("copying %s" % gg)
             x = gg
         assoc.Release(0)
