@@ -10,8 +10,7 @@ class Pacs:
                     aem='ACME1',
                     output='out',
                     implicit=None,
-                    explicit=None):
-        self.onDicomSaved = None
+                    explicit=None):       
         self.logger = logging.getLogger(__name__)
         if implicit:
             ts = [ImplicitVRLittleEndian]
@@ -27,7 +26,6 @@ class Pacs:
         self.aet = aet
         self.aem = aem
         self.output = output
-        self.RemoteAE = None
         self.MyAE = AE(aet, port, [StudyRootFindSOPClass,
                              StudyRootMoveSOPClass,
                              PatientRootFindSOPClass,
@@ -36,6 +34,8 @@ class Pacs:
         self.MyAE.OnAssociateResponse = self.OnAssociateResponse
         self.MyAE.OnAssociateRequest = self.OnAssociateRequest
         self.MyAE.OnReceiveStore = self.OnReceiveStore
+        self.RemoteAE = None
+        self.onDicomSaved = None
       
     def connect(self, remotehost, remoteport, aec):
         self.RemoteAE = dict(Address=remotehost,Port=remoteport,AET=aec)
@@ -72,6 +72,9 @@ class Pacs:
         fileds.update(ds)
         fileds.save_as(filename)
         self.logger.info("file %s written" % filename)
+        if self.onDicomSaved:
+            self.logger.info("calling callback")
+            self.onDicomSaved(filename)
         # must return appropriate status
         return SOPClass.Success
 

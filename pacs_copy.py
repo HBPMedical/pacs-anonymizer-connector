@@ -24,6 +24,11 @@ parser.add_argument('-e','--explicit', action='store_true',
 parser.add_argument('-o','--output', help='output folder', default=tempfile.gettempdir())
 parser.add_argument('-l','--log', help='configuration log file', default='logging.ini')
 parser.add_argument('-C','--csv', help='csv file with the already processed dicoms', default='dicoms_processed.csv')
+parser.add_argument('-A', '--anonymizer', help='path for the jar file of the anonymiser', 
+            default='../anonymizer/pandora-clients-fedehr-anonymiser-packaging-targz-1.0.0/lib/pandora-clients-fedehr-anonymiser-cli-1.0.0.jar')
+parser.add_argument('-S', '--dicom-script', help='dicom script for anonymizer', default='dicom-scripts/DICOM-PS3.15-Basic')
+parser.add_argument('-Q', '--quarantine', help='Anonymizer quarantine folder', default='quarantine')
+parser.add_argument('-T', '--lookup-table', help='Anonymizer lookup table', default=None)
 
 args = parser.parse_args()
 
@@ -34,6 +39,10 @@ else:
 
 logger = logging.getLogger(__name__)
 
+from mip import DicomAnonymizer
+
+anon = DicomAnonymizer(args.anonymizer, args.quarantine, args.dicom_script, args.lookup_table)
+
 #starts our pacs instance
 pacs = Pacs( args.port,
             args.aet,
@@ -41,6 +50,9 @@ pacs = Pacs( args.port,
             args.output,
             args.implicit,
             args.explicit)
+
+# sets te callback when storing a file to anonymize it
+pacs.onDicomSaved = anon.anonymize
 
 pacs.connect(args.remotehost, 
             args.remoteport, 
