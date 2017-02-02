@@ -11,6 +11,7 @@ class Pacs:
                     output='out',
                     implicit=None,
                     explicit=None):
+        self.onDicomSaved = None
         self.logger = logging.getLogger(__name__)
         if implicit:
             ts = [ImplicitVRLittleEndian]
@@ -61,7 +62,7 @@ class Pacs:
                     % (ds.SeriesInstanceUID, ds.SOPInstanceUID))
         file_meta = Dataset()
         file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
-        # !! Need valid UID here
+        # !! Need valid UID herecopy_dicom
         file_meta.MediaStorageSOPInstanceUID = "1.2.3"
         # !!! Need valid UIDs here
         file_meta.ImplementationClassUID = "1.2.3.4"    
