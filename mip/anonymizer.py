@@ -24,7 +24,7 @@ class DicomAnonymizer:
 
         if self.lookupTable:
             args.append( "-lookupTable " + os.path.abspath(self.lookupTable))
-        self.logger.info("about to run command %s" % " ".join(cmd))
+        self.logger.debug("about to run command %s" % " ".join(cmd))
         status = call(" ".join(cmd) , shell=True)
         # TODO: see howto use Popen and pass commands to stdin for the annoying license menu
 #        p = Popen( cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,)

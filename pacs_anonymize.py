@@ -8,7 +8,7 @@ from mip import Pacs
 import tempfile
 
 # parse commandline
-parser = argparse.ArgumentParser(description='storage SCU example')
+parser = argparse.ArgumentParser(description='Download and anonymize files from a PACS system')
 parser.add_argument('remotehost')
 parser.add_argument('remoteport', type=int)
 parser.add_argument('-p', '--port', help='local server port', type=int, default=1234)
