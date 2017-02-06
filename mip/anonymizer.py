@@ -20,7 +20,6 @@ class DicomAnonymizer:
                 "-s", self.config,
                 "-target", target
             ]
-         
 
         if self.lookupTable:
             args.append( "-lookupTable " + os.path.abspath(self.lookupTable))

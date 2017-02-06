@@ -3,6 +3,8 @@ from netdicom.SOPclass import *
 from dicom.dataset import Dataset, FileDataset
 from dicom.UID import ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
 import logging
+import os
+from datetime import datetime
 
 class Pacs:
     def __init__(self,port=1234,
@@ -10,7 +12,10 @@ class Pacs:
                     aem='ACME1',
                     output='out',
                     implicit=None,
-                    explicit=None):       
+                    explicit=None):
+        self.RemoteAE = None
+        self.onDicomSaved = None
+        self.import_folder = None
         self.logger = logging.getLogger(__name__)
         if implicit:
             ts = [ImplicitVRLittleEndian]
@@ -34,19 +39,23 @@ class Pacs:
         self.MyAE.OnAssociateResponse = self.OnAssociateResponse
         self.MyAE.OnAssociateRequest = self.OnAssociateRequest
         self.MyAE.OnReceiveStore = self.OnReceiveStore
-        self.RemoteAE = None
-        self.onDicomSaved = None
       
     def connect(self, remotehost, remoteport, aec):
         self.RemoteAE = dict(Address=remotehost,Port=remoteport,AET=aec)
         self.logger.debug("starting local application entity")
         self.MyAE.start()
         # create association with remote AE
-        self.logger.info("Requesting association")
-        assoc = self.MyAE.RequestAssociation(self.RemoteAE)
-        # perform a DICOM ECHO
-        st = assoc.VerificationSOPClass.SCU(1)
+        try:
+            self.logger.info("Requesting association")
+            assoc = self.MyAE.RequestAssociation(self.RemoteAE)
+            # perform a DICOM ECHO
+            st = assoc.VerificationSOPClass.SCU(1)
+        except:
+            self.logger.critical("Unable to get association with %s, is the server running?" % self.RemoteAE)
+            raise
         self.logger.info('done with status "%s"' % st)
+        now = datetime.now()
+        self.import_folder = os.path.join(self.output, now.strftime('%Y.%m.%d:%H:%M:%S'))
         assoc.Release(0)
 
     def OnAssociateResponse(self, association):
@@ -65,8 +74,11 @@ class Pacs:
         # !! Need valid UID herecopy_dicom
         file_meta.MediaStorageSOPInstanceUID = "1.2.3"
         # !!! Need valid UIDs here
-        file_meta.ImplementationClassUID = "1.2.3.4"    
-        filename = '%s/%s.dcm' % (self.output, ds.SOPInstanceUID)
+        file_meta.ImplementationClassUID = "1.2.3.4"
+        folder = os.path.join( self.import_folder, ds.StudyID)
+        if not os.path.isdir(folder):
+           os.makedirs(folder)
+        filename = '%s/%s.dcm' % (folder, ds.SOPInstanceUID)
         fileds = FileDataset(filename, {},
                          file_meta=file_meta, preamble="\0" * 128)
         fileds.update(ds)
