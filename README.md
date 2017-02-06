@@ -41,7 +41,8 @@ optional arguments:
 -o OUTPUT, --output OUTPUT                     | output folder to save the dicom files      
 -l LOG, --log LOG                              | configuration log file                     
 -C CSV, --csv CSV                              | csv file with the already processed dicoms 
--A ANON, --anonymizer ANON                     | path for the jar file of the anonymiser    
+-J ANON, --anonymizer-jar ANON                 | path for the jar file of the anonymiser    
 -S SCRIPT, --dicom-script SCRIPT               | dicom script for anonymizer                
 -Q QUARANTINE, --quarantine QUARANTINE         | Anonymizer quarantine folder               
--T LOOKUP_TABLE, --lookup-table LOOKUP_TABLE   | Anonymizer lookup table                    
+-T LOOKUP_TABLE, --lookup-table LOOKUP_TABLE   | Anonymizer lookup table   
+-D, --download-only                            | Download dicoms only, without anonymization
