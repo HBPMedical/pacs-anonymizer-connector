@@ -12,7 +12,7 @@ It needs pydicom and pynedicom:
 ## Downloading all dicoms files from a pacs
 example:
 
-`python pacs_anonymize.py -o out/ --aet HBP --aec COMMON -D localhost 11112`
+`python pacs_anonymize.py -o out/ --aet HBP --aec COMMON -D -p 104 localhost 11112`
 
 Your local port `port`, aet, aec have to be in the configuration of your PACS system or it will be refused.
 For now it uses a csv file where it stores all the already copyed files, so if you re-run this script it might not download and anonymize anything (if there is no new data).
