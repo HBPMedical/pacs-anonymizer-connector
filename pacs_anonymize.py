@@ -15,8 +15,7 @@ parser.add_argument('remotehost')
 parser.add_argument('remoteport', type=int)
 parser.add_argument('-p', '--port', help='local server port', type=int, default=1234)
 parser.add_argument('-t','--aet', help='calling AET title', default='ACME1')
-parser.add_argument('-m','--aem', help='calling AEM title', default='ACME1')
-parser.add_argument('-c','--aec', help='called AEC title', default='COMMON')
+parser.add_argument('-c','--aec', help='called AEC call', default='COMMON')
 parser.add_argument('-i','--implicit', action='store_true',
                     help='negociate implicit transfer syntax only',
                     default=False)
@@ -28,7 +27,7 @@ parser.add_argument('-l','--log', help='configuration log file', default='loggin
 parser.add_argument('-C','--csv', help='csv file with the already processed dicoms', default='dicoms_processed.csv')
 #----------- Anonymizer options ----------------
 parser.add_argument('-D', '--download-only', 
-                    help='Download dicoms only without anonymization', 
+                    help='Download dicoms only, without anonymization', 
                     action='store_true', default=False)
 parser.add_argument('-J', '--anonymizer-jar', help='path for the jar file of the anonymiser', 
             default='../anonymizer/pandora-clients-fedehr-anonymiser-packaging-targz-1.0.0/lib/pandora-clients-fedehr-anonymiser-cli-1.0.0.jar')
@@ -49,7 +48,6 @@ logger = logging.getLogger(__name__)
 #starts our pacs instance
 pacs = Pacs( args.port,
             args.aet,
-            args.aem,
             args.output,
             args.implicit,
             args.explicit)

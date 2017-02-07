@@ -9,7 +9,6 @@ from datetime import datetime
 class Pacs:
     def __init__(self,port=1234,
                     aet='ACME1',
-                    aem='ACME1',
                     output='out',
                     implicit=None,
                     explicit=None):
@@ -29,7 +28,6 @@ class Pacs:
             ]
         self.port = port
         self.aet = aet
-        self.aem = aem
         self.output = output
         self.MyAE = AE(aet, port, [StudyRootFindSOPClass,
                              StudyRootMoveSOPClass,
@@ -75,7 +73,7 @@ class Pacs:
         file_meta.MediaStorageSOPInstanceUID = "1.2.3"
         # !!! Need valid UIDs here
         file_meta.ImplementationClassUID = "1.2.3.4"
-        folder = os.path.join( self.import_folder, ds.StudyID)
+        folder = os.path.join(self.import_folder, ds.StudyID)
         if not os.path.isdir(folder):
            os.makedirs(folder)
         filename = '%s/%s.dcm' % (folder, ds.SOPInstanceUID)
@@ -105,7 +103,7 @@ class Pacs:
 
     def copy_dicom(self, dataset):    
         assoc = self.MyAE.RequestAssociation(self.RemoteAE)
-        gen = assoc.StudyRootMoveSOPClass.SCU(dataset, self.aem, 1)
+        gen = assoc.StudyRootMoveSOPClass.SCU(dataset, self.aet, 1)
         for gg in gen:
             # we have to access the item to copy it (it will be done asynchronously)
             self.logger.debug("copying %s" % gg)
