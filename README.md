@@ -5,9 +5,9 @@ It is here just as an alternative to using a tomcat server.
 ## Installing Dependencies
 It needs pydicom and pynedicom:
 
-`pip install pydicom`
+`pip install git+https://github.com/darcymason/pydicom.git`
 
-`pip install git+https://github.com/torcato/pynetdicom`
+`pip install git+https://github.com/torcato/pynetdicom.git`
 
 ## Downloading and anonymizing all dicoms from a pacs
 example:
