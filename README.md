@@ -9,7 +9,7 @@ It needs pydicom and pynedicom:
 
 `pip install git+https://github.com/torcato/pynetdicom.git`
 
-## Downloading and anonymizing all dicoms from a pacs
+## Downloading all dicoms files from a pacs
 example:
 
 `python pacs_anonymize.py -o out/ --aet HBP --aec COMMON -D localhost 11112`
