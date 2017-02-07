@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(description='Download and anonymize files from 
 parser.add_argument('remotehost')
 parser.add_argument('remoteport', type=int)
 parser.add_argument('-p', '--port', help='local server port', type=int, default=1234)
-parser.add_argument('-t','--aet', help='calling AET title', default='ACME1')
+parser.add_argument('-t','--aet', help='calling AET title', default='HBP')
 parser.add_argument('-c','--aec', help='called AEC call', default='COMMON')
 parser.add_argument('-i','--implicit', action='store_true',
                     help='negociate implicit transfer syntax only',
