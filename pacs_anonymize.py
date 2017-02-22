@@ -25,6 +25,7 @@ parser.add_argument('-e','--explicit', action='store_true',
 parser.add_argument('-o','--output', help='output folder', default=tempfile.gettempdir())
 parser.add_argument('-l','--log', help='configuration log file', default='logging.ini')
 parser.add_argument('-C','--csv', help='csv file with the already processed dicoms', default='dicoms_processed.csv')
+parser.add_argument('-q','--query-file', help='Configuration file with query')
 #----------- Anonymizer options ----------------
 parser.add_argument('-D', '--download-only', 
                     help='Download dicoms only, without anonymization', 

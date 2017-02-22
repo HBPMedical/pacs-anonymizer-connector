@@ -86,7 +86,9 @@ def OnReceiveStore(SOPClass, DS):
 
 
 # create application entity
-MyAE = AE(args.aet, args.p, [PatientRootFindSOPClass,
+MyAE = AE(args.aet, args.p, [StudyRootFindSOPClass,
+                             StudyRootMoveSOPClass,
+                             PatientRootFindSOPClass,
                              PatientRootMoveSOPClass,
                              VerificationSOPClass], [StorageSOPClass], ts)
 MyAE.OnAssociateResponse = OnAssociateResponse
@@ -110,9 +112,9 @@ print 'done with status "%s"' % st
 
 print "DICOM FindSCU ... ",
 d = Dataset()
-d.PatientsName = args.searchstring
+#d.PatientsName = "*"
 d.QueryRetrieveLevel = "PATIENT"
-d.PatientID = "*"
+d.PatientID = args.searchstring
 st = assoc.PatientRootFindSOPClass.SCU(d, 1)
 print 'done with status "%s"' % st
 
